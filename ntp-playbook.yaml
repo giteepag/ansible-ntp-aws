@@ -1,0 +1,35 @@
+---
+- hosts: tag_Role_ntp
+  tasks:
+  - name: allow ntp through firewall
+    become: yes
+    shell: firewall-cmd --add-service=ntp --permanent
+
+  - name: firewall reload
+    become: yes
+    shell: firewall-cmd --reload
+
+  - name: Make sure Chrony is started up
+    service: name=chronyd state=started enabled=yes
+    become: yes
+    tags: chrony
+
+  - name: set timezone
+    become: yes
+    shell: timedatectl set-timezone America/New_York
+
+  - name: Install NTP
+    become: yes
+    yum: name=ntp state=installed
+    tags: ntp
+
+  - name: Copy over the NTP configuration
+    become: yes
+    copy: src=/tmp/ntp.j2 dest=/etc/ntp.conf
+    notify:
+    - restart ntpd
+    tags: ntp
+  handlers:
+  - name: restart ntpd
+    become: yes
+    service: name=ntpd state=restarted

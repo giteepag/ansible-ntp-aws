@@ -1,0 +1,2 @@
+ ansible-playbook dod-playbook.yaml -i aws_ec2.yaml -u ec2-user --private-key=ec2.pem
+
